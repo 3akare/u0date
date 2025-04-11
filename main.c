@@ -1,25 +1,6 @@
-#include <stdio.h>
-#include <ncurses.h>
-#include <strings.h>
-
-#define ctrl(x) ((x) & 0x1f)
-#define ESC 27
-#define BACKSPACE 127
-
-typedef enum {
-    NORMAL,
-    INSERT
-} Mode;
+#include "main.h"
 
 Mode mode = NORMAL;
-
-const char* stringify_mode(Mode mode){
-    switch(mode){
-	case NORMAL: return "-- NORMAL --";
-	case INSERT: return "-- INSERT --";
-	default: return "-- NORMAL --";
-    }
-}
 
 int main(int argc, char* argv[]){
     initscr();
