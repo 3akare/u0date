@@ -22,19 +22,29 @@ int main(int argc, char* argv[]){
 
     while ((ch = getch())){	
 	switch(mode){
-	    case NORMAL: 
-		if (ch == 'i'){
-		    mode = INSERT;
-		    mvprintw(max_y - 1, 0, stringify_mode(mode));
-		    move(y, x);
-		}
-		else if (ch == ctrl('s')){
+	    case NORMAL:
+		if (ch == ctrl('s')){
 		    FILE *file = fopen("test.txt", "wb");
 		    fwrite(buffer, 1, buffer_s, file);
 		    fclose(file);
 		    exit = 1;
 		}
-		else if (ch == 'q') exit = 1;
+		switch(ch){
+		    case 'i': mode = INSERT; mvprintw(max_y - 1, 0, stringify_mode(mode)); move(y, x);
+			 break;
+		    case KEY_UP:
+		    case 'k': move(--y, x);
+			 break;
+		    case KEY_DOWN:
+		    case 'j': move(++y, x);
+			 break;
+		    case KEY_LEFT:
+		    case 'h': move(y, --x);
+			 break;
+		    case KEY_RIGHT:
+		    case 'l': move(y, ++x);
+			 break;
+		}	
 		break;
 	    case INSERT:
 		if (ch == ESC){
