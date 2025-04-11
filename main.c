@@ -8,6 +8,9 @@ int main(int argc, char* argv[]){
     raw();
     keypad(stdscr, TRUE);
 
+    char *buffer = malloc(sizeof(char) * 1024);
+    size_t buffer_s = 0;
+
     int ch, x, y, max_x, max_y;
     int exit = 0;
 
@@ -25,6 +28,12 @@ int main(int argc, char* argv[]){
 		    mvprintw(max_y - 1, 0, stringify_mode(mode));
 		    move(y, x);
 		}
+		else if (ch == ctrl('s')){
+		    FILE *file = fopen("test.txt", "wb");
+		    fwrite(buffer, 1, buffer_s, file);
+		    fclose(file);
+		    exit = 1;
+		}
 		else if (ch == 'q') exit = 1;
 		break;
 	    case INSERT:
@@ -38,8 +47,12 @@ int main(int argc, char* argv[]){
 			getyx(stdscr, y, x);
 			move(y, x - 1);
 			delch();
+			buffer[buffer_s--] = ' ';
 		    }
-		    else addch(ch); 
+		    else {
+			addch(ch);
+			buffer[buffer_s++] = ch;
+		    }; 
 		}
 		break;
 	}

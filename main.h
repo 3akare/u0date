@@ -1,7 +1,9 @@
 #ifndef __U0DATE_H__
 #define __U0DATE_H__
 
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <strings.h>
 #include <ncurses.h>
 
