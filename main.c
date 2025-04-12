@@ -23,7 +23,8 @@ int main(int argc, char* argv[]){
     while ((ch = getch())){	
 	switch(mode){
 	    case NORMAL:
-		if (ch == ctrl('s')){
+		if (ch == 'q') exit = 1;
+		else if (ch == ctrl('s')){
 		    FILE *file = fopen("test.txt", "wb");
 		    fwrite(buffer, 1, buffer_s, file);
 		    fclose(file);
