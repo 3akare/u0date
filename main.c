@@ -2,19 +2,7 @@
 
 Mode mode = NORMAL;
 
-int read_from_file(const char* filename, char *buffer, size_t buffer_s){
-    int ch = 0;
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) return 0;
-    while ((ch = fgetc(file)) != EOF){
-	buffer[buffer_s++] = ch;
-	addch(ch); 
-    }
-    fclose(file); 
-    return 1;
-}
-
-int main(int argc, const char* argv[]){
+int main(int argc, char* argv[]){
     initscr();
     noecho();
     raw();
@@ -32,17 +20,12 @@ int main(int argc, const char* argv[]){
     mvprintw(max_y - 1, 0, stringify_mode(mode));
     move(y, x);
 
-    if (argc != 2 || argv[1] == NULL){
-	printf("Error: add a filename");
-	return 0;
-    } else read_from_file(argv[1], buffer, buffer_s);
-
     while ((ch = getch())){	
 	switch(mode){
 	    case NORMAL:
 		if (ch == 'q') exit = 1;
 		else if (ch == ctrl('s')){
-		    FILE *file = fopen(argv[1], "wb");
+		    FILE *file = fopen("test.txt", "wb");
 		    fwrite(buffer, 1, buffer_s, file);
 		    fclose(file);
 		    exit = 1;
