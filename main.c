@@ -86,6 +86,7 @@ int main(int argc, const char* argv[]){
 	}
 	if (exit) break;
 	getyx(stdscr, y, x);
+	getmaxyx(stdscr, max_y, max_x);
     }
     endwin();
     return 0;
