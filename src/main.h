@@ -15,4 +15,8 @@ typedef enum { NORMAL, INSERT } Mode;
 /* functions */
 const char* stringify_mode(Mode mode);
 
+/* file functions */
+int read_from_file(const char *filename, char *buffer, size_t buffer_s);
+int save_to_file(const char *filename, char *buffer, size_t buffer_s);
+
 #endif

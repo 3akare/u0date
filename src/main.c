@@ -2,35 +2,16 @@
 
 Mode mode = NORMAL;
 
-int read_from_file(const char *filename, char *buffer, size_t buffer_s) {
-	int ch = 0;
-	FILE *file = fopen(filename, "r");
-	if (file == NULL) return 0;
-	while ((ch = fgetc(file)) != EOF) {
-		buffer[buffer_s++] = ch;
-		addch(ch);
-	}
-	fclose(file);
-	return buffer_s;
-}
-
-int save_to_file(const char *filename, char *buffer, size_t buffer_s) {
-	FILE *file = fopen(filename, "wb");
-	fwrite(buffer, 1, buffer_s, file);
-	fclose(file);
-}
-
 int main(int argc, const char *argv[]) {
 	initscr();
 	noecho();
 	raw();
 	keypad(stdscr, TRUE);
 
-	char *buffer = malloc(sizeof(char) * 1024);
-	size_t buffer_s = 0;
-
-	int ch, x, y, max_x, max_y;
 	int exit = 0;
+	size_t buffer_s = 0;
+	int ch, x, y, max_x, max_y;
+	char *buffer = malloc(sizeof(char) * BUFSIZ);
 
 	getmaxyx(stdscr, max_y, max_x);
 	getyx(stdscr, y, x);
