@@ -1,6 +1,7 @@
 #include "main.h"
 
-Mode mode = NORMAL;
+// default Editor mode
+EditorMode mode = NORMAL;
 
 int main(int argc, const char *argv[]) {
 	initscr();
@@ -16,7 +17,7 @@ int main(int argc, const char *argv[]) {
 	getmaxyx(stdscr, max_y, max_x);
 	getyx(stdscr, y, x);
 
-	mvprintw(max_y - 1, 0, stringify_mode(mode));
+	mvprintw(max_y - 2, 0, stringify_mode(mode));
 	move(y, x);
 
 	if (argc != 2 || argv[1] == NULL) {
@@ -32,12 +33,14 @@ int main(int argc, const char *argv[]) {
 					exit = 1;
 				else if (ch == ctrl('s')) {
 					save_to_file(argv[1], buffer, buffer_s);
-					exit = 1;
+					mvprintw(max_y - 2, max_x - strlen("saved! "), "Saved!");
+					move(y, x);
 				}
 				switch (ch) {
 					case 'i':
 						mode = INSERT;
-						mvprintw(max_y - 1, 0, stringify_mode(mode));
+						mvprintw(max_y - 2, 0, stringify_mode(mode));
+						mvprintw(max_y - 2, max_x - strlen("saved! "), "        ");
 						if (buffer_s > 0)
 							move(y, buffer_s);
 						else
@@ -64,7 +67,7 @@ int main(int argc, const char *argv[]) {
 			case INSERT:
 				if (ch == ESC) {
 					mode = NORMAL;
-					mvprintw(max_y - 1, 0, stringify_mode(mode));
+					mvprintw(max_y - 2, 0, stringify_mode(mode));
 					move(y, x);
 				} else {
 					if (ch == BACKSPACE || ch == KEY_BACKSPACE) {

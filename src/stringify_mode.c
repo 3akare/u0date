@@ -1,6 +1,6 @@
 #include "main.h"
 
-const char* stringify_mode(Mode mode) {
+const char* stringify_mode(EditorMode mode) {
 	switch (mode) {
 		case NORMAL:
 			return "-- NORMAL --";
