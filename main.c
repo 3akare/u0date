@@ -2,7 +2,25 @@
 
 Mode mode = NORMAL;
 
-int main(int argc, char *argv[]) {
+int read_from_file(const char *filename, char *buffer, size_t buffer_s) {
+	int ch = 0;
+	FILE *file = fopen(filename, "r");
+	if (file == NULL) return 0;
+	while ((ch = fgetc(file)) != EOF) {
+		buffer[buffer_s++] = ch;
+		addch(ch);
+	}
+	fclose(file);
+	return buffer_s;
+}
+
+int save_to_file(const char *filename, char *buffer, size_t buffer_s) {
+	FILE *file = fopen(filename, "wb");
+	fwrite(buffer, 1, buffer_s, file);
+	fclose(file);
+}
+
+int main(int argc, const char *argv[]) {
 	initscr();
 	noecho();
 	raw();
@@ -20,22 +38,29 @@ int main(int argc, char *argv[]) {
 	mvprintw(max_y - 1, 0, stringify_mode(mode));
 	move(y, x);
 
+	if (argc != 2 || argv[1] == NULL) {
+		printf("Error: add a filename");
+		return 0;
+	} else
+		buffer_s = read_from_file(argv[1], buffer, buffer_s);
+
 	while ((ch = getch())) {
 		switch (mode) {
 			case NORMAL:
 				if (ch == 'q')
 					exit = 1;
 				else if (ch == ctrl('s')) {
-					FILE *file = fopen("test.txt", "wb");
-					fwrite(buffer, 1, buffer_s, file);
-					fclose(file);
+					save_to_file(argv[1], buffer, buffer_s);
 					exit = 1;
 				}
 				switch (ch) {
 					case 'i':
 						mode = INSERT;
 						mvprintw(max_y - 1, 0, stringify_mode(mode));
-						move(y, x);
+						if (buffer_s > 0)
+							move(y, buffer_s);
+						else
+							move(y, x);
 						break;
 					case KEY_UP:
 					case 'k':
@@ -75,6 +100,7 @@ int main(int argc, char *argv[]) {
 		}
 		if (exit) break;
 		getyx(stdscr, y, x);
+		getmaxyx(stdscr, max_y, max_x);
 	}
 	endwin();
 	return 0;
