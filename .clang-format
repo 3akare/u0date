@@ -1,0 +1,4 @@
+BasedOnStyle: Google
+UseTab: ForIndentation
+IndentWidth: 2
+TabWidth: 2
