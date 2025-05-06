@@ -1,4 +1,4 @@
 BasedOnStyle: Google
-UseTab: ForIndentation
+UseTab: Never
 IndentWidth: 2
 TabWidth: 2

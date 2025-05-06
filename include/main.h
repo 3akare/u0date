@@ -12,22 +12,23 @@
 
 // type definitions
 typedef struct {
-    char *contents;
-    size_t size; // Length of text in the line
-    size_t capacity; // Allocated memory capacity for the line (includes null terminator)
+  char *contents;
+  size_t size;      // Length of text in the line
+  size_t capacity;  // Allocated memory capacity for the line (includes null
+                    // terminator)
 } row;
 
-typedef struct { 
-    row *rows;
-    size_t num_rows;
-    size_t capacity;
+typedef struct {
+  row *rows;
+  size_t num_rows;
+  size_t capacity;
 } buffer;
 
 typedef enum { NORMAL, INSERT } EditorMode;
 typedef enum { MODE, INFO } Status;
 
 /* functions */
-const char* stringify_mode(EditorMode mode);
+const char *stringify_mode(EditorMode mode);
 
 /* file functions */
 int read_from_file(const char *filename, char *buffer, size_t buffer_s);
