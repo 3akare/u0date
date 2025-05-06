@@ -17,13 +17,13 @@ int main(int argc, const char *argv[]) {
 
   int exit = 0;
   int ch;
-  int max_x, max_y;
+  int win_max_x, win_max_y;
   char *buffer = malloc(sizeof(char) * BUFSIZ);
 
-  getmaxyx(stdscr, max_y, max_x);
+  getmaxyx(stdscr, win_max_y, win_max_x);
   getyx(stdscr, cursor_y, cursor_x);
 
-  mvprintw(max_y - 2, 0, stringify_mode(mode));
+  mvprintw(win_max_y - 2, 0, stringify_mode(mode));
   move(cursor_y, cursor_x);
 
   if (argc != 2 || argv[1] == NULL) {
@@ -40,14 +40,14 @@ int main(int argc, const char *argv[]) {
           exit = 1;
         else if (ch == ctrl('s')) {
           save_to_file(argv[1], buffer, buffer_s);
-          mvprintw(max_y - 2, max_x - strlen("saved! "), "Saved!");
+          mvprintw(win_max_y - 2, win_max_x - strlen("saved! "), "Saved!");
           move(cursor_y, cursor_x);
         }
         switch (ch) {
           case 'i':
             mode = INSERT;
-            mvprintw(max_y - 2, 0, stringify_mode(mode));
-            mvprintw(max_y - 2, max_x - strlen("saved! "), "        ");
+            mvprintw(win_max_y - 2, 0, stringify_mode(mode));
+            mvprintw(win_max_y - 2, win_max_x - strlen("saved! "), "        ");
             if (buffer_s > 0)
               move(cursor_y, buffer_s);
             else
@@ -74,7 +74,7 @@ int main(int argc, const char *argv[]) {
       case INSERT:
         if (ch == ESC) {
           mode = NORMAL;
-          mvprintw(max_y - 2, 0, stringify_mode(mode));
+          mvprintw(win_max_y - 2, 0, stringify_mode(mode));
           move(cursor_y, cursor_x);
         } else {
           if (ch == BACKSPACE || ch == KEY_BACKSPACE) {
@@ -91,7 +91,7 @@ int main(int argc, const char *argv[]) {
     }
     if (exit) break;
     getyx(stdscr, cursor_y, cursor_x);
-    getmaxyx(stdscr, max_y, max_x);
+    getmaxyx(stdscr, win_max_y, win_max_x);
   }
   endwin();
   return 0;

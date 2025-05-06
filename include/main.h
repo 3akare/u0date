@@ -14,8 +14,7 @@
 typedef struct {
   char *contents;
   size_t size;      // Length of text in the line
-  size_t capacity;  // Allocated memory capacity for the line (includes null
-                    // terminator)
+  size_t capacity;  // Allocated memory capacity for the line (includes null terminator)
 } row;
 
 typedef struct {
@@ -25,14 +24,13 @@ typedef struct {
 } buffer;
 
 typedef enum { NORMAL, INSERT } EditorMode;
-typedef enum { MODE, INFO } Status;
 
 /* functions */
 const char *stringify_mode(EditorMode mode);
 
 /* file functions */
 int read_from_file(const char *filename, char *buffer, size_t buffer_s);
-int save_to_file(const char *filename, char *buffer, size_t buffer_s);
+void save_to_file(const char *filename, char *buffer, size_t buffer_s);
 
 /* row functions */
 void init_row(row *r);

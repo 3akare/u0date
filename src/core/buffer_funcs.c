@@ -12,7 +12,7 @@ void init_buffer(buffer *buf) {
 
 void free_buffer(buffer *buf) {
   for (size_t i = 0; i < buf->num_rows; ++i) {
-    free(&buf->rows[i]);
+    free_row(&buf->rows[i]);
   }
   free(buf->rows);
   buf->rows = NULL;
