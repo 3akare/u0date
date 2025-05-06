@@ -9,20 +9,27 @@ int main(int argc, const char *argv[]) {
 	raw();
 	keypad(stdscr, TRUE);
 
-	int exit = 0;
 	size_t buffer_s = 0;
-	int ch, x, y, max_x, max_y;
+
+	// cursor position
+	size_t cursor_y = 0;
+	size_t cursor_x = 0;
+
+	int exit = 0;
+	int ch;
+	int max_x, max_y;
 	char *buffer = malloc(sizeof(char) * BUFSIZ);
 
 	getmaxyx(stdscr, max_y, max_x);
-	getyx(stdscr, y, x);
+	getyx(stdscr,cursor_y, cursor_x);
 
 	mvprintw(max_y - 2, 0, stringify_mode(mode));
-	move(y, x);
+	move(cursor_y, cursor_x);
 
 	if (argc != 2 || argv[1] == NULL) {
-		printf("Error: add a filename");
-		return 0;
+		endwin();
+		printf("Usage: %s <filename>\n", argv[0]);
+		return EXIT_FAILURE;
 	} else
 		buffer_s = read_from_file(argv[1], buffer, buffer_s);
 
@@ -34,7 +41,7 @@ int main(int argc, const char *argv[]) {
 				else if (ch == ctrl('s')) {
 					save_to_file(argv[1], buffer, buffer_s);
 					mvprintw(max_y - 2, max_x - strlen("saved! "), "Saved!");
-					move(y, x);
+					move(cursor_y, cursor_x);
 				}
 				switch (ch) {
 					case 'i':
@@ -42,25 +49,25 @@ int main(int argc, const char *argv[]) {
 						mvprintw(max_y - 2, 0, stringify_mode(mode));
 						mvprintw(max_y - 2, max_x - strlen("saved! "), "        ");
 						if (buffer_s > 0)
-							move(y, buffer_s);
+							move(cursor_y, buffer_s);
 						else
-							move(y, x);
+							move(cursor_y, cursor_x);
 						break;
 					case KEY_UP:
 					case 'k':
-						move(--y, x);
+						move(--cursor_y, cursor_x);
 						break;
 					case KEY_DOWN:
 					case 'j':
-						move(++y, x);
+						move(++cursor_y, cursor_x);
 						break;
 					case KEY_LEFT:
 					case 'h':
-						move(y, --x);
+						move(cursor_y, --cursor_x);
 						break;
 					case KEY_RIGHT:
 					case 'l':
-						move(y, ++x);
+						move(cursor_y, ++cursor_x);
 						break;
 				}
 				break;
@@ -68,13 +75,14 @@ int main(int argc, const char *argv[]) {
 				if (ch == ESC) {
 					mode = NORMAL;
 					mvprintw(max_y - 2, 0, stringify_mode(mode));
-					move(y, x);
+					move(cursor_y, cursor_x);
 				} else {
 					if (ch == BACKSPACE || ch == KEY_BACKSPACE) {
-						getyx(stdscr, y, x);
-						move(y, x - 1);
+						getyx(stdscr, cursor_y, cursor_x);
+						move(cursor_y, cursor_x - 1);
 						delch();
-						buffer[buffer_s--] = ' ';
+						if (buffer_s > 0)
+							buffer[buffer_s--] = ' ';
 					} else {
 						addch(ch);
 						buffer[buffer_s++] = ch;
@@ -83,7 +91,7 @@ int main(int argc, const char *argv[]) {
 				break;
 		}
 		if (exit) break;
-		getyx(stdscr, y, x);
+		getyx(stdscr, cursor_y, cursor_x);
 		getmaxyx(stdscr, max_y, max_x);
 	}
 	endwin();
