@@ -43,7 +43,7 @@ void insert_char_in_row(buffer *buf, size_t row_index, size_t col_index,
                         int ch);
 void delete_char_in_row(buffer *buf, size_t row_index, size_t col_index);
 void split_row(buffer *buf, size_t row_index, size_t col_index);
-void join_rows(buffer *buf, size_t row_index, size_t row2_index);
+void join_rows(buffer *buf, size_t row1_index, size_t row2_index);
 void ensure_row_capacity(row *r, size_t needed);
 
 /* buffer functions */

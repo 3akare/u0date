@@ -1,13 +1,15 @@
 #include "main.h"
 
+EditorMode mode = NORMAL;
+
 int main(int argc, const char *argv[]) {
   initscr();
   noecho();
   raw();
   keypad(stdscr, TRUE);
 
-  EditorMode mode = NORMAL;
   buffer editor_buffer;
+  init_buffer(&editor_buffer);
 
   size_t cursor_y = 0;
   size_t cursor_x = 0;
@@ -15,8 +17,6 @@ int main(int argc, const char *argv[]) {
   int ch;
   int exit = 0;
   int win_max_y, win_max_x;
-
-  init_buffer(&editor_buffer);
   getmaxyx(stdscr, win_max_y, win_max_x);
 
   if (argc != 2 || argv[1] == NULL) {
@@ -63,7 +63,6 @@ int main(int argc, const char *argv[]) {
               cursor_x = min(cursor_x, editor_buffer.rows[cursor_y].size);
               move(cursor_y, cursor_x);
             }
-            move(cursor_y, cursor_x);
             break;
           case KEY_DOWN:
           case 'j':

@@ -8,6 +8,7 @@ void init_row(row *r) {
     perror("malloc failed");
     exit(EXIT_FAILURE);
   }
+  r->contents[0] = '\0';
 }
 
 void free_row(row *r) {
@@ -75,9 +76,9 @@ void split_row(buffer *buf, size_t row_index, size_t col_index) {
   r->contents[r->size] = '\0';
 }
 
-void join_rows(buffer *buf, size_t row_index, size_t row2_index) {
-  if (row_index >= buf->num_rows - 1 || row2_index != buf->num_rows + 1) return;
-  row *r1 = &buf->rows[row_index];
+void join_rows(buffer *buf, size_t row1_index, size_t row2_index) {
+  if (row1_index >= buf->num_rows - 1 || row2_index != row1_index + 1) return;
+  row *r1 = &buf->rows[row1_index];
   row *r2 = &buf->rows[row2_index];
 
   size_t original_r1_size = r1->size;
