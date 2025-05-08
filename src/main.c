@@ -1,98 +1,140 @@
 #include "main.h"
 
-// default Editor mode
-EditorMode mode = NORMAL;
-
 int main(int argc, const char *argv[]) {
   initscr();
   noecho();
   raw();
   keypad(stdscr, TRUE);
 
-  size_t buffer_s = 0;
+  EditorMode mode = NORMAL;
+  buffer editor_buffer;
 
-  // cursor position
   size_t cursor_y = 0;
   size_t cursor_x = 0;
 
-  int exit = 0;
   int ch;
-  int win_max_x, win_max_y;
-  char *buffer = malloc(sizeof(char) * BUFSIZ);
+  int exit = 0;
+  int win_max_y, win_max_x;
 
+  init_buffer(&editor_buffer);
   getmaxyx(stdscr, win_max_y, win_max_x);
-  getyx(stdscr, cursor_y, cursor_x);
-
-  mvprintw(win_max_y - 2, 0, stringify_mode(mode));
-  move(cursor_y, cursor_x);
 
   if (argc != 2 || argv[1] == NULL) {
     endwin();
     printf("Usage: %s <filename>\n", argv[0]);
     return EXIT_FAILURE;
-  } else
-    buffer_s = read_from_file(argv[1], buffer, buffer_s);
+  } else {
+    read_file_into_buffer(argv[1], &editor_buffer);
+    if (editor_buffer.num_rows > 0) {
+      cursor_y = editor_buffer.num_rows - 1;
+      cursor_x = editor_buffer.rows[cursor_y].size;
+    } else {
+      cursor_y = 0;
+      cursor_x = 0;
+    }
+  }
 
-  while ((ch = getch())) {
+  display_buffer(&editor_buffer, mode);
+  move(cursor_y, cursor_x);
+
+  while (!exit) {
+    ch = getch();
+    getmaxyx(stdscr, win_max_y, win_max_x);
     switch (mode) {
       case NORMAL:
         if (ch == 'q')
           exit = 1;
         else if (ch == ctrl('s')) {
-          save_to_file(argv[1], buffer, buffer_s);
+          save_file_from_buffer(argv[1], &editor_buffer);
           mvprintw(win_max_y - 2, win_max_x - strlen("saved! "), "Saved!");
+          mvprintw(win_max_y - 2, 0, stringify_mode(mode));
           move(cursor_y, cursor_x);
         }
         switch (ch) {
           case 'i':
             mode = INSERT;
-            mvprintw(win_max_y - 2, 0, stringify_mode(mode));
-            mvprintw(win_max_y - 2, win_max_x - strlen("saved! "), "        ");
-            if (buffer_s > 0)
-              move(cursor_y, buffer_s);
-            else
-              move(cursor_y, cursor_x);
+            display_buffer(&editor_buffer, mode);
+            move(cursor_y, cursor_x);
             break;
           case KEY_UP:
           case 'k':
-            move(--cursor_y, cursor_x);
+            if (cursor_y > 0) {
+              cursor_y--;
+              cursor_x = min(cursor_x, editor_buffer.rows[cursor_y].size);
+              move(cursor_y, cursor_x);
+            }
+            move(cursor_y, cursor_x);
             break;
           case KEY_DOWN:
           case 'j':
-            move(++cursor_y, cursor_x);
+            if (cursor_y < editor_buffer.num_rows - 1) {
+              cursor_y++;
+              cursor_x = min(cursor_x, editor_buffer.rows[cursor_y].size);
+              move(cursor_y, cursor_x);
+            }
             break;
           case KEY_LEFT:
           case 'h':
-            move(cursor_y, --cursor_x);
+            if (cursor_x > 0) {
+              cursor_x--;
+              move(cursor_y, cursor_x);
+            } else if (cursor_y > 0) {
+              cursor_y--;
+              cursor_x = editor_buffer.rows[cursor_y].size;
+              move(cursor_y, cursor_x);
+            }
             break;
           case KEY_RIGHT:
           case 'l':
-            move(cursor_y, ++cursor_x);
+            if (cursor_y < editor_buffer.num_rows) {
+              if (cursor_x < editor_buffer.rows[cursor_y].size) {
+                cursor_x++;
+                move(cursor_y, cursor_x);
+              } else if (cursor_y < editor_buffer.num_rows - 1) {
+                cursor_y++;
+                cursor_x = 0;
+                move(cursor_y, cursor_x);
+              }
+            }
             break;
         }
         break;
       case INSERT:
         if (ch == ESC) {
           mode = NORMAL;
-          mvprintw(win_max_y - 2, 0, stringify_mode(mode));
+          mvprintw(win_max_y - 2, win_max_x - strlen("       "), "       ");
+          display_buffer(&editor_buffer, mode);
           move(cursor_y, cursor_x);
-        } else {
-          if (ch == BACKSPACE || ch == KEY_BACKSPACE) {
-            getyx(stdscr, cursor_y, cursor_x);
-            move(cursor_y, cursor_x - 1);
-            delch();
-            if (buffer_s > 0) buffer[buffer_s--] = ' ';
-          } else {
-            addch(ch);
-            buffer[buffer_s++] = ch;
-          };
+        } else if (ch == BACKSPACE || ch == KEY_BACKSPACE) {
+          if (cursor_x > 0) {
+            delete_char_in_row(&editor_buffer, cursor_y, cursor_x - 1);
+            cursor_x--;
+            display_buffer(&editor_buffer, mode);
+            move(cursor_y, cursor_x);
+          } else if (cursor_y > 0) {
+            size_t prev_line_len = editor_buffer.rows[cursor_y - 1].size;
+            join_rows(&editor_buffer, cursor_y - 1, cursor_y);
+            cursor_y--;
+            cursor_x = prev_line_len;
+            display_buffer(&editor_buffer, mode);
+            move(cursor_y, cursor_x);
+          }
+        } else if (ch == '\n' || ch == '\r') {
+          split_row(&editor_buffer, cursor_y, cursor_x);
+          cursor_y++;
+          cursor_x = 0;
+          display_buffer(&editor_buffer, mode);
+          move(cursor_y, cursor_x);
+        } else if (ch >= 32 && ch <= 126) {
+          insert_char_in_row(&editor_buffer, cursor_y, cursor_x, ch);
+          cursor_x++;
+          display_buffer(&editor_buffer, mode);
+          move(cursor_y, cursor_x);
         }
         break;
     }
-    if (exit) break;
-    getyx(stdscr, cursor_y, cursor_x);
-    getmaxyx(stdscr, win_max_y, win_max_x);
   }
+  free_buffer(&editor_buffer);
   endwin();
   return 0;
 }
