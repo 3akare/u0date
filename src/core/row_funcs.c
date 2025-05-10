@@ -1,5 +1,8 @@
 #include "main.h"
 
+extern history undo_history;
+extern history redo_history;
+
 void init_row(row *r) {
   r->size = 0;
   r->capacity = 1;

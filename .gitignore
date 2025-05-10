@@ -3,3 +3,4 @@ build/
 *.txt
 *.out
 .DS_Store
+*.test.c

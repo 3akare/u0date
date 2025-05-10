@@ -1,6 +1,7 @@
 #ifndef __U0DATE_H__
 #define __U0DATE_H__
 
+#include <errno.h>
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,10 +9,23 @@
 
 #define ESC 27
 #define BACKSPACE 127
-#define ctrl(x) ((x) & 0x1f)
+#define CTRL(x) ((x) & 0x1f)
+#define SAVE_KEY CTRL('s')
+#define UNDO_KEY 'u'
+#define REDO_KEY CTRL('r')
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-// type definitions
+typedef enum { NORMAL, INSERT } EditorMode;
+typedef enum {
+  ACTION_INSERT_CHAR,
+  ACTION_DELETE_CHAR,
+  ACTION_INSERT_ROW,
+  ACTION_DELETE_ROW,
+  ACTION_SPLIT_ROW,
+  ACTION_JOIN_ROWS
+} ActionType;
+
 typedef struct {
   char *contents;
   size_t size;      // Length of text in the line
@@ -25,7 +39,20 @@ typedef struct {
   size_t capacity;
 } buffer;
 
-typedef enum { NORMAL, INSERT } EditorMode;
+typedef struct {
+  ActionType type;
+  size_t row_index;
+  size_t col_index;
+  char *data;
+  size_t data_size;
+  size_t original_row1_size;
+} action;
+
+typedef struct {
+  action *actions;
+  size_t count;
+  size_t capacity;
+} history;
 
 /* functions */
 const char *stringify_mode(EditorMode mode);
@@ -51,5 +78,17 @@ void init_buffer(buffer *buf);
 void free_buffer(buffer *buf);
 void display_buffer(const buffer *buf, EditorMode mode);
 void ensure_buffer_capacity(buffer *buf, size_t needed_capacity);
+
+/* action functions */
+void init_action(action *a);
+void free_action(action *a);
+void push_action(history *h, action *a);
+int pop_action(history *h, action *out_a);
+
+/* history functions */
+void init_history(history *h);
+void free_history(history *h);
+void clear_history(history *h);
+void ensure_history_capacity(history *h, size_t needed_capacity);
 
 #endif
